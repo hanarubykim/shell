@@ -1,6 +1,13 @@
 #include
 
 int main(int argc, char **argv){
+  char command[1000];
+  if(argc <= 1){
+    printf("Enter command: ");
+    fgets(command, 1000, stdin);
+  }else{
+    strcpy(comand, argv[1]);
+  }
   run_shell();
   return 0;
 }
@@ -18,15 +25,7 @@ void run_shell(){
 }
 
 char read(){
-  char *buffer = malloc(sizeof(char) * 1024);
-  int pos = 0;
-  int c;
-  if(buffer == NULL){
-    printf("ERROR");
-  }
-  while(){
-    c = 
-  }
+
 }
 
 char ** parse(char *line){
