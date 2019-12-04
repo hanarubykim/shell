@@ -1,6 +1,10 @@
 #include
 
 int main(int argc, char **argv){
+  char *line;
+  char **args;
+  int status;
+
   char command[1000];
   if(argc <= 1){
     printf("Enter command: ");
@@ -8,6 +12,15 @@ int main(int argc, char **argv){
   }else{
     strcpy(command, argv[1]);
   }
+
+  char ** args = malloc(64 * sizeof(char));
+  int i = 0;
+  while(line != NULL){
+    args[i] = strsep(&line, " ");
+    i++;
+  }
+  args[i] = NULL;
+  return args;
   run_shell();
   return 0;
 }
