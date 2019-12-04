@@ -6,7 +6,7 @@ int main(int argc, char **argv){
     printf("Enter command: ");
     fgets(command, 1000, stdin);
   }else{
-    strcpy(comand, argv[1]);
+    strcpy(command, argv[1]);
   }
   run_shell();
   return 0;
@@ -20,8 +20,6 @@ void run_shell(){
   line = read();
   args = parse(line);
   status = execute(args);
-  free(line);
-  free(args);
 }
 
 char read(){
