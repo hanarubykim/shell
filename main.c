@@ -21,31 +21,19 @@ int main(int argc, char **argv){
     strcpy(command, argv[1]);
   }
 
-  char ** args = malloc(64 * sizeof(char));
-  int i = 0;
-  while(line != NULL){
-    args[i] = strsep(&line, " ");
-    i++;
-  }
-  args[i] = NULL;
-  return args;
-  run_shell();
+  line = command;
+  run_shell(line);
   return 0;
 }
 
-void run_shell(){
-  char *line;
+void run_shell(char *line){
   char **args;
   int status;
 
-  line = read();
   args = parse(line);
   status = execute(args);
 }
 
-char read(){
-
-}
 
 char ** parse(char *line){
   char ** args = malloc(64 * sizeof(char));
