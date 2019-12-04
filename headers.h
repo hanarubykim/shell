@@ -7,9 +7,6 @@
 #include <errno.h>
 #include <dirent.h>
 
-//MAIN FUNCTION
-int main(int argc, char **argv);
-
 //RUNS THE SHELL
 void run_shell();
 
