@@ -6,12 +6,3 @@
 #include <unistd.h>
 #include <errno.h>
 #include <dirent.h>
-
-//RUNS THE SHELL
-void run_shell();
-
-//READS IN THE COMMAND LINE ARGUMENTS
-char read();
-
-//
-char ** parse(char *line);
