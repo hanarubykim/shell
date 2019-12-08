@@ -19,23 +19,27 @@ char ** parse_args(char *line, char *delimiter){
   return args;
 }
 
-void semicolon(char *line){
-  char ** separated = parse_args(line, ";");
-  int i = 0;
-  while(separated[i]){
-    run_command(separated[i]);
-    i++;
-  }
-}
 
 int run_commands(char *line){
   char * cmd = malloc(64 * sizeof(char));
   strcat(cmd, line);
   char ** args = parse_args(cmd, " ");
-
+  return 0;
 
 
 }
+
+
+void semicolon(char *line){
+  char ** separated = parse_args(line, ";");
+  int i = 0;
+  int store;
+  while(separated[i]){
+    run_commands(separated[i]);
+    i++;
+  }
+}
+
 
 int main(int argc, char *argv[]){
   char command[1000];
@@ -49,7 +53,7 @@ int main(int argc, char *argv[]){
     strcpy(line, argv[1]);
   }
 
-  while(line != "EXIT\0"){
+  while(strncmp(line,"EXIT\0",100) != 0){
     char ** args = parse_args(line, " ");
     execvp(args[0], args);
   }
