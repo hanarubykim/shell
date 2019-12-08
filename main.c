@@ -8,16 +8,33 @@
 #include <dirent.h>
 #include "headers.h"
 
-char ** parse_args(char *line){
+char ** parse_args(char *line, char *delimiter){
   char ** args = malloc(64 * sizeof(char));
   int i = 0;
   while(line != NULL){
-    args[i] = strsep(&line, " ");
+    args[i] = strsep(&line, delimiter);
     i++;
-    printf("args[%d]: %s", i, args[i]);
   }
-  args[i] = NULL;
+  //args[i] == NULL
   return args;
+}
+
+void semicolon(char *line){
+  char ** separated = parse_args(line, ";");
+  int i = 0;
+  while(separated[i]){
+    run_command(separated[i]);
+    i++;
+  }
+}
+
+int run_commands(char *line){
+  char * cmd = malloc(64 * sizeof(char));
+  strcat(cmd, line);
+  char ** args = parse_args(cmd, " ");
+
+
+
 }
 
 int main(int argc, char *argv[]){
@@ -33,16 +50,8 @@ int main(int argc, char *argv[]){
   }
 
   while(line != "EXIT\0"){
-    char ** args = parse_args(line);
+    char ** args = parse_args(line, " ");
     execvp(args[0], args);
   }
   return 0;
 }
-
-// void run_shell(char *line){
-//   char **args;
-//   int status;
-//
-//   args = parse(line);
-//   status = execute(args);
-// }
