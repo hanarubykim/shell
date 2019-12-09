@@ -15,7 +15,6 @@ char ** parse_args(char *line, char *delimiter){
     args[i] = strsep(&line, delimiter);
     i++;
   }
-  //args[i] == NULL
   return args;
 }
 
@@ -24,7 +23,6 @@ int run_commands(char *line){
   char * cmd = malloc(64 * sizeof(char));
   strcat(cmd, line);
   char ** args = parse_args(cmd, " ");
-
 
   pid_t pid;
   pid = fork();
@@ -62,29 +60,16 @@ int main(int argc, char *argv[]){
     line[strlen(line) - 1] = '\0';
 
     if(strlen(line) > 0){
-      if(strncmp(line,"EXIT\0",100) != 0){
+      if(strncmp(line, "EXIT\0", 100) != 0){
         run_commands(line);
-      } 
+      }
+      else{
+        printf("Bye bye!\n");
+        exit(0);
+      }
       free(line);
     }
 
   }
-
-  //********* PREVIOUS MAIN (in case we need to go back to this)*************
-  // char command[1000];
-  // char *line = command;
-  // if (argc <= 1){
-  //   printf("Enter command: ");
-  //   fgets(line, 1000, stdin);
-  //   line[strlen(line) - 1] = '\0';
-  // }
-  // else{
-  //   strcpy(line, argv[1]);
-  // }
-  //
-  // while(strncmp(line,"EXIT\0",100) != 0){
-  //   char ** args = parse_args(line, " ");
-  //   execvp(args[0], args);
-  // }
   return 0;
 }
