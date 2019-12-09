@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "headers.h"
 
 char ** parse_args(char *line, char *delimiter){
