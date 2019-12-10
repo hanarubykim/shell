@@ -27,14 +27,13 @@ char ** parse_args(char *line, char *delimiter){
   char * temp;
   while(line != NULL){
     temp = strsep(&line, delimiter);
-    if (strcmp(temp,"")) {
+    if(strcmp(temp,"")){
       args[i] = temp;
       i++;
     }
   }
   return args;
 }
-
 
 void semicolon(char *line){
   char ** separated = parse_args(line, ";");
@@ -54,7 +53,6 @@ int redir_input(char *line){
     fd1 = open(separated[i], O_RDONLY);
     int num = dup2(fd1, fd);
     if(fd1 == -1){
-      //error
       printf("Uh oh! %s\n", strerror(errno));
     }
     close(fd);
@@ -82,7 +80,6 @@ int redir_output(char *line){
 }
 
 
-
 int run_commands(char *line){
   char * cmd = malloc(64 * sizeof(char));
   strcat(cmd, line);
@@ -90,7 +87,6 @@ int run_commands(char *line){
 
   pid_t pid;
   pid = fork();
-
   int i;
 
   if(pid == 0){
@@ -98,21 +94,43 @@ int run_commands(char *line){
     // getpid() returns process id of calling process
 
     //************************* DOES NOT WORK (YET!) ***********************
-    // redir_output(line);
-    // redir_input(line);
-
+    redir_output(line);
+    //redir_input(line);
 
     int error = execvp(args[0], args);
     if (error == -1)
-      printf("%s: %s\n", args[0], strerror(errno));
+    printf("%s: %s\n", args[0], strerror(errno));
     exit(0);
-  }
+
   int cpid = wait(NULL);
   return 0;
+}
+}
 
+char * fixws(char *arg){
+  char *fixed;
+  while(strcmp(arg, " ") == 0){
+      arg++;
+  }
+  int index = -1;
+  int i = 0;
+  while(arg[i] != '\0'){
+    if(arg[i] != ' ' || arg[i] != '\t' || arg[i] != '\n'){
+      index = i;
+    }
+    i++;
+  }
+  strcpy(arg, fixed);
+  fixed[index + 1] = '\0';
+  return fixed;
 }
 
 int main(int argc, char *argv[]){
+  char * testing = "  hana kim  ";
+  printf("%s", testing);
+  testing = fixws(testing);
+  printf("%s", testing);
+
   while(1){
     char command[1000];
     char *line = calloc(100, sizeof(char));
