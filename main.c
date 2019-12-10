@@ -67,6 +67,22 @@ int redir_input(char *line){
   return 0;
 }
 
+int redir_output(char *line){
+  char ** separated = parse_args(line, ">");
+  int i = 1;
+  int fd;
+  while(separated[i] != NULL){
+    fd = open(separated[i], O_WRONLY | O_CREAT, 0644);
+    dup2(fd, STD_FILENO);
+    if(fd == -1){
+      printf("Uh oh! %S\n", sterror(errno));
+    }
+    close(fd);
+    i++;
+  }
+  return 0;
+}
+
 int main(int argc, char *argv[]){
   while(1){
     char command[1000];
