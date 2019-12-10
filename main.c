@@ -11,42 +11,36 @@
 #include <fcntl.h>
 #include "headers.h"
 
+// char ** parse_args(char *line, char *delimiter){
+//   char ** args = malloc(64 * sizeof(char));
+//   int i = 0;
+//   while(line != NULL){
+//     args[i] = strsep(&line, delimiter);
+//     i++;
+//   }
+//   return args;
+// }
+
 char ** parse_args(char *line, char *delimiter){
   char ** args = malloc(64 * sizeof(char));
   int i = 0;
+  char * temp;
   while(line != NULL){
-    args[i] = strsep(&line, delimiter);
-    i++;
+    temp = strsep(&line, delimiter);
+    if (strcmp(temp,"")) {
+      args[i] = temp;
+      i++;
+    }
   }
   return args;
 }
 
-int run_commands(char *line){
-  char * cmd = malloc(64 * sizeof(char));
-  strcat(cmd, line);
-  char ** args = parse_args(cmd, " ");
-
-  pid_t pid;
-  pid = fork();
-  if(pid == 0){
-    // pid == 0 means child process created
-    // getpid() returns process id of calling process
-    int error = execvp(args[0], args);
-    if (error == -1)
-      printf("%s: %s\n", args[0], strerror(errno));
-    exit(0);
-  }
-  int cpid = wait(NULL);
-  return 0;
-
-}
 
 void semicolon(char *line){
   char ** separated = parse_args(line, ";");
   int i = 0;
-  int store;
   while(separated[i]){
-    run_commands(separated[i]);
+      run_commands(separated[i]);
     i++;
   }
 }
@@ -59,7 +53,7 @@ int redir_input(char *line){
   while(separated[i] != NULL){
     fd1 = open(separated[i], O_RDONLY);
     int num = dup2(fd1, fd);
-    if(fd == -1){
+    if(fd1 == -1){
       //error
       printf("Uh oh! %s\n", strerror(errno));
     }
@@ -76,14 +70,46 @@ int redir_output(char *line){
   int fd1 = -1;
   while(separated[i] != NULL){
     fd1 = open(separated[i], O_WRONLY | O_CREAT, 0644);
-    dup2(fd1, fd);
-    if(fd == -1){
+    int num = dup2(fd1, fd);
+    if(fd1 == -1){
+      //error
       printf("Uh oh! %s\n", strerror(errno));
     }
     close(fd);
     i++;
   }
   return 0;
+}
+
+
+
+int run_commands(char *line){
+  char * cmd = malloc(64 * sizeof(char));
+  strcat(cmd, line);
+  char ** args = parse_args(cmd, " ");
+
+  pid_t pid;
+  pid = fork();
+
+  int i;
+
+  if(pid == 0){
+    // pid == 0 means child process created
+    // getpid() returns process id of calling process
+
+    //************************* DOES NOT WORK (YET!) ***********************
+    // redir_output(line);
+    // redir_input(line);
+
+
+    int error = execvp(args[0], args);
+    if (error == -1)
+      printf("%s: %s\n", args[0], strerror(errno));
+    exit(0);
+  }
+  int cpid = wait(NULL);
+  return 0;
+
 }
 
 int main(int argc, char *argv[]){
@@ -99,8 +125,9 @@ int main(int argc, char *argv[]){
       if(strncmp(check, ";", 0) || strncmp(check, "<", 0) || strncmp(check, ">", 0) || strncmp(check, "|", 0)){
         printf("Doesn't look right.\n");
         exit(0);
-      }
-      if(strncmp(line, "EXIT\0", 100) != 0){
+      } else if(strchr(line, ';')){
+        semicolon(line);
+      } else if(strncmp(line, "EXIT\0", 100) != 0){
         run_commands(line);
       }
       else{
