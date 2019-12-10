@@ -8,6 +8,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include "headers.h"
 
 char ** parse_args(char *line, char *delimiter){
@@ -52,14 +53,15 @@ void semicolon(char *line){
 
 int redir_input(char *line){
   char ** separated = parse_args(line, "<");
-  int fd;
+  int fd = STDIN_FILENO;
+  int fd1 = -1;
   int i = 1;
   while(separated[i] != NULL){
-    fd = open(separated[i], O_RDONLY);
-    dup2(fd, STDIN_FILENO);
-    if(fd == =1){
+    fd1 = open(separated[i], O_RDONLY);
+    int num = dup2(fd1, fd);
+    if(fd == -1){
       //error
-      printf("Uh oh! %s\n", sterror(errno));
+      printf("Uh oh! %s\n", strerror(errno));
     }
     close(fd);
     i++;
@@ -70,12 +72,13 @@ int redir_input(char *line){
 int redir_output(char *line){
   char ** separated = parse_args(line, ">");
   int i = 1;
-  int fd;
+  int fd = STDOUT_FILENO;
+  int fd1 = -1;
   while(separated[i] != NULL){
-    fd = open(separated[i], O_WRONLY | O_CREAT, 0644);
-    dup2(fd, STD_FILENO);
+    fd1 = open(separated[i], O_WRONLY | O_CREAT, 0644);
+    dup2(fd1, fd);
     if(fd == -1){
-      printf("Uh oh! %S\n", sterror(errno));
+      printf("Uh oh! %s\n", strerror(errno));
     }
     close(fd);
     i++;
@@ -92,8 +95,8 @@ int main(int argc, char *argv[]){
     line[strlen(line) - 1] = '\0';
 
     if(strlen(line) > 0){
-      char * check = line[0];
-      if(check == ';' || check == '<' || check == '>' || check == '|'){
+      char * check = &line[0];
+      if(strncmp(check, ";", 0) || strncmp(check, "<", 0) || strncmp(check, ">", 0) || strncmp(check, "|", 0)){
         printf("Doesn't look right.\n");
         exit(0);
       }
