@@ -9,7 +9,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "headers.h"
-//HIII
 
 char ** parse_args(char *line, char *delimiter){
   char ** args = malloc(64 * sizeof(char));
@@ -77,6 +76,11 @@ int main(int argc, char *argv[]){
     line[strlen(line) - 1] = '\0';
 
     if(strlen(line) > 0){
+      char * check = line[0];
+      if(check == ';' || check == '<' || check == '>' || check == '|'){
+        printf("Doesn't look right.\n");
+        exit(0);
+      }
       if(strncmp(line, "EXIT\0", 100) != 0){
         run_commands(line);
       }
@@ -86,7 +90,6 @@ int main(int argc, char *argv[]){
       }
       free(line);
     }
-
   }
   return 0;
 }
