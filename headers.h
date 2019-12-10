@@ -14,3 +14,7 @@ char ** parse_args(char *line, char *delimiter);
 int run_commands(char *line);
 
 void semicolon(char *line);
+
+int redir_input(char *line);
+
+int redir_output(char *line);
