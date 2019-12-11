@@ -98,6 +98,7 @@ int redir_output(char *line){
 
 
 int run_commands(char *line){
+  char * currentdirectory = malloc(256);
   char * cmd = malloc(64 * sizeof(char));
   strcat(cmd, line);
   char ** args = parse_args(cmd, " ");
@@ -112,8 +113,8 @@ int run_commands(char *line){
     // getpid() returns process id of calling process
 
     //************************* DOES NOT WORK (YET!) ***********************
-    redir_output(line);
-    redir_input(line);
+    // redir_output(line);
+    // redir_input(line);
 
     int error = execvp(args[0], args);
     if (error == -1)
@@ -132,10 +133,14 @@ int main(int argc, char *argv[]){
   // testing = fixws(testing);
   // printf("%s", testing);
 
+  char * currentdirectory = malloc(256);
+
   while(1){
     char command[1000];
     char *line = calloc(100, sizeof(char));
-    printf("Enter command: ");
+    // printf("Enter command: ");
+    printf("(MY SHELL)%s",getcwd(currentdirectory, 256));
+    printf("$ ");
     fgets(line, 1000, stdin);
     line[strlen(line) - 1] = '\0';
 
@@ -144,6 +149,12 @@ int main(int argc, char *argv[]){
       if(strncmp(check, ";", 0) || strncmp(check, "<", 0) || strncmp(check, ">", 0) || strncmp(check, "|", 0)){
         printf("Doesn't look right.\n");
         exit(0);
+      }
+
+      char ** args = parse_args(line, " ");
+
+      if(strcmp(args[0], "cd") == 0){
+        chdir(args[1]);
       } else if(strchr(line, ';')){
         semicolon(line);
       } else if(strncmp(line, "exit\0", 100) != 0){
