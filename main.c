@@ -11,16 +11,6 @@
 #include <fcntl.h>
 #include "headers.h"
 
-// char ** parse_args(char *line, char *delimiter){
-//   char ** args = malloc(64 * sizeof(char));
-//   int i = 0;
-//   while(line != NULL){
-//     args[i] = strsep(&line, delimiter);
-//     i++;
-//   }
-//   return args;
-// }
-
 char ** parse_args(char *line, char *delimiter){
   char ** args = malloc(64 * sizeof(char));
   int i = 0;
@@ -113,8 +103,8 @@ int run_commands(char *line){
     // getpid() returns process id of calling process
 
     //************************* DOES NOT WORK (YET!) ***********************
-    // redir_output(line);
-    // redir_input(line);
+    redir_output(line);
+    redir_input(line);
 
     int error = execvp(args[0], args);
     if (error == -1)
@@ -128,18 +118,13 @@ int run_commands(char *line){
 
 
 int main(int argc, char *argv[]){
-  // char * testing = "  hana kim  ";
-  // printf("%s", testing);
-  // testing = fixws(testing);
-  // printf("%s", testing);
-
   char * currentdirectory = malloc(256);
 
   while(1){
     char command[1000];
     char *line = calloc(100, sizeof(char));
     // printf("Enter command: ");
-    printf("(MY SHELL)%s",getcwd(currentdirectory, 256));
+    printf("(MY SHELL)%s", getcwd(currentdirectory, 256));
     printf("$ ");
     fgets(line, 1000, stdin);
     line[strlen(line) - 1] = '\0';
