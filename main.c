@@ -149,12 +149,6 @@ int main(int argc, char *argv[]){
       if(strncmp(check, ";", 0) || strncmp(check, "<", 0) || strncmp(check, ">", 0) || strncmp(check, "|", 0)){
         printf("Doesn't look right.\n");
         exit(0);
-      }
-
-      char ** args = parse_args(line, " ");
-
-      if(strcmp(args[0], "cd") == 0){
-        chdir(args[1]);
       } else if(strchr(line, ';')){
         semicolon(line);
       } else if(strncmp(line, "exit\0", 100) != 0){
@@ -164,6 +158,20 @@ int main(int argc, char *argv[]){
         printf("Bye bye!\n");
         exit(0);
       }
+
+      // char ** args = parse_args(line, " ");
+      //
+      // if(strcmp(args[0], "cd") == 0){
+      //   chdir(args[1]);
+      // } else if(strchr(line, ';')){
+      //   semicolon(line);
+      // } else if(strncmp(line, "exit\0", 100) != 0){
+      //   run_commands(line);
+      // }
+      // else{
+      //   printf("Bye bye!\n");
+      //   exit(0);
+      // }
       free(line);
     }
   }
