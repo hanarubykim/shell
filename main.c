@@ -35,6 +35,22 @@ char ** parse_args(char *line, char *delimiter){
   return args;
 }
 
+char * fixws(char *arg){
+  char * ws = " ";
+  while(strcmp(arg, ws) == 0){
+      arg++;
+  }
+  int index = -1;
+  int i = 0;
+  while(strcmp(arg, ws) != 0){
+    arg++;
+  }
+  *arg = '\0';
+
+  return arg;
+}
+
+
 void semicolon(char *line){
   char ** separated = parse_args(line, ";");
   int i = 0;
@@ -46,15 +62,16 @@ void semicolon(char *line){
 
 int redir_input(char *line){
   char ** separated = parse_args(line, "<");
+  int fd = STDIN_FILENO;
   int fd1 = -1;
   int i = 1;
-  while(separated[i] != NULL){
-    fd1 = open(separated[i], O_RDONLY);
-    int num = dup2(fd1, STDIN_FILENO);
+  while(separated[i]){
+    fd1 = open(fixws(separated[i]), O_RDONLY);
+    int num = dup2(fd1, fd);
     if(fd1 == -1){
       printf("Uh oh! %s\n", strerror(errno));
     }
-    close(fd);
+    close(fd1);
     i++;
   }
   return 0;
@@ -65,8 +82,9 @@ int redir_output(char *line){
   int i = 1;
   int fd = STDOUT_FILENO;
   int fd1 = -1;
-  while(separated[i] != NULL){
-    fd1 = open(separated[i], O_WRONLY | O_CREAT, 0644);
+  while(separated[i]){
+    redir_input(separated[i]);
+    fd1 = open(fixws(separated[i]), O_WRONLY | O_CREAT, 0644);
     int num = dup2(fd1, fd);
     if(fd1 == -1){
       //error
@@ -86,7 +104,8 @@ int run_commands(char *line){
 
   pid_t pid;
   pid = fork();
-  int i;
+
+  int fd1 = -1;
 
   if(pid == 0){
     // pid == 0 means child process created
@@ -94,38 +113,24 @@ int run_commands(char *line){
 
     //************************* DOES NOT WORK (YET!) ***********************
     redir_output(line);
-    //redir_input(line);
+    redir_input(line);
 
     int error = execvp(args[0], args);
     if (error == -1)
     printf("%s: %s\n", args[0], strerror(errno));
     exit(0);
+  }
 
   int cpid = wait(NULL);
   return 0;
 }
-}
 
-char * fixws(char *arg){
-  char *ws = ' ';
-  while(chrcmp(arg, ws) == 0){
-      arg++;
-  }
-  int index = -1;
-  int i = 0;
-  while(chrcmp(arg, ws) != 0){
-    arg++;
-  }
-  *arg = '\0';
-
-  return arg;
-}
 
 int main(int argc, char *argv[]){
-  char * testing = "  hana kim  ";
-  printf("%s", testing);
-  testing = fixws(testing);
-  printf("%s", testing);
+  // char * testing = "  hana kim  ";
+  // printf("%s", testing);
+  // testing = fixws(testing);
+  // printf("%s", testing);
 
   while(1){
     char command[1000];
@@ -141,7 +146,7 @@ int main(int argc, char *argv[]){
         exit(0);
       } else if(strchr(line, ';')){
         semicolon(line);
-      } else if(strncmp(line, "EXIT\0", 100) != 0){
+      } else if(strncmp(line, "exit\0", 100) != 0){
         run_commands(line);
       }
       else{

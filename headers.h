@@ -11,6 +11,8 @@
 
 char ** parse_args(char *line, char *delimiter);
 
+char * fixws(char *arg);
+
 void semicolon(char *line);
 
 int redir_input(char *line);
