@@ -124,7 +124,7 @@ int main(int argc, char *argv[]){
     char command[1000];
     char *line = calloc(100, sizeof(char));
     // printf("Enter command: ");
-    printf("(MY SHELL)%s", getcwd(currentdirectory, 256));
+    printf("(**OUR SHELL BABY**)%s", getcwd(currentdirectory, 256));
     printf("$ ");
     fgets(line, 1000, stdin);
     line[strlen(line) - 1] = '\0';
