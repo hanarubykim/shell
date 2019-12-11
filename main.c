@@ -116,6 +116,14 @@ int run_commands(char *line){
   return 0;
 }
 
+void call_cd(char *line){
+  printf("REACHES THIS POINT\n");
+  int change;
+  change = chdir(line);
+  if(change == -1){
+    printf("ERROR: %s\n", strerror(errno));
+  }
+}
 
 int main(int argc, char *argv[]){
   char * currentdirectory = malloc(256);
@@ -123,8 +131,7 @@ int main(int argc, char *argv[]){
   while(1){
     char command[1000];
     char *line = calloc(100, sizeof(char));
-    // printf("Enter command: ");
-    printf("(**OUR SHELL BABY**)%s", getcwd(currentdirectory, 256));
+    printf("(**OUR SHELL BABY**) %s", getcwd(currentdirectory, 256));
     printf("$ ");
     fgets(line, 1000, stdin);
     line[strlen(line) - 1] = '\0';
@@ -144,21 +151,22 @@ int main(int argc, char *argv[]){
         exit(0);
       }
 
-      // char ** args = parse_args(line, " ");
-      //
-      // if(strcmp(args[0], "cd") == 0){
-      //   chdir(args[1]);
-      // } else if(strchr(line, ';')){
-      //   semicolon(line);
-      // } else if(strncmp(line, "exit\0", 100) != 0){
-      //   run_commands(line);
-      // }
-      // else{
-      //   printf("Bye bye!\n");
-      //   exit(0);
-      // }
       free(line);
     }
   }
   return 0;
 }
+
+// char ** args = parse_args(line, " ");
+//
+// if(strcmp(args[0], "cd") == 0){
+//   chdir(args[1]);
+// } else if(strchr(line, ';')){
+//   semicolon(line);
+// } else if(strncmp(line, "exit\0", 100) != 0){
+//   run_commands(line);
+// }
+// else{
+//   printf("Bye bye!\n");
+//   exit(0);
+// }
