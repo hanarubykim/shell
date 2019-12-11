@@ -46,12 +46,11 @@ void semicolon(char *line){
 
 int redir_input(char *line){
   char ** separated = parse_args(line, "<");
-  int fd = STDIN_FILENO;
   int fd1 = -1;
   int i = 1;
   while(separated[i] != NULL){
     fd1 = open(separated[i], O_RDONLY);
-    int num = dup2(fd1, fd);
+    int num = dup2(fd1, STDIN_FILENO);
     if(fd1 == -1){
       printf("Uh oh! %s\n", strerror(errno));
     }
@@ -108,21 +107,18 @@ int run_commands(char *line){
 }
 
 char * fixws(char *arg){
-  char *fixed;
-  while(strcmp(arg, " ") == 0){
+  char *ws = ' ';
+  while(chrcmp(arg, ws) == 0){
       arg++;
   }
   int index = -1;
   int i = 0;
-  while(arg[i] != '\0'){
-    if(arg[i] != ' ' || arg[i] != '\t' || arg[i] != '\n'){
-      index = i;
-    }
-    i++;
+  while(chrcmp(arg, ws) != 0){
+    arg++;
   }
-  strcpy(arg, fixed);
-  fixed[index + 1] = '\0';
-  return fixed;
+  *arg = '\0';
+
+  return arg;
 }
 
 int main(int argc, char *argv[]){
