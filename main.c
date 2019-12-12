@@ -30,7 +30,6 @@ char * fixws(char *arg){
   while(strcmp(arg, ws) == 0){
       arg++;
   }
-  int index = -1;
   int i = 0;
   while(strcmp(arg, ws) != 0){
     arg++;
@@ -50,50 +49,38 @@ void semicolon(char *line){
   }
 }
 
-int redir_input(char *line){
-  char ** separated = parse_args(line, "<");
-  int fd = STDIN_FILENO;
-  int fd1 = -1;
-  int i = 1;
-  while(separated[i]){
-    fd1 = open(fixws(separated[i]), O_RDONLY);
-    int num = dup2(fd1, fd);
-    if(fd1 == -1){
-      printf("Uh oh! %s\n", strerror(errno));
-    }
-    close(fd1);
-    i++;
+void redir_input(char ** arr, int i) {
+  int fd;
+  fd = open(arr[i + 1], O_RDONLY);
+  dup(STDIN_FILENO);
+  dup2(fd, STDIN_FILENO);
+  arr[i] = NULL;
+  if (execvp(arr[0], arr) == -1){
+    printf("Uh oh! %s\n", strerror(errno));
   }
-  return 0;
+  close(fd);
 }
 
-int redir_output(char *line){
-  char ** separated = parse_args(line, ">");
-  int i = 1;
-  int fd = STDOUT_FILENO;
-  int fd1 = -1;
-  while(separated[i]){
-    redir_input(separated[i]);
-    fd1 = open(fixws(separated[i]), O_WRONLY | O_CREAT, 0644);
-    int num = dup2(fd1, fd);
-    if(fd1 == -1){
-      //error
-      printf("Uh oh! %s\n", strerror(errno));
-    }
-    close(fd);
-    i++;
-  }
-  return 0;
-}
 
-// void call_cd(char *line){
-//   printf("REACHES THIS POINT\n");
-//   int change;
-//   change = chdir(line);
-//   if(change == -1){
-//     printf("ERROR: %s\n", strerror(errno));
-//   }
-// }
+void redir_output(char ** arr, int i) {
+  int fd;
+  if(strcmp(arr[i], ">") == 0) {
+    fd = open(arr[i + 1], O_CREAT | O_WRONLY, 0644);
+  }
+  else {
+    fd = open(arr[i + 1], O_CREAT | O_WRONLY | O_APPEND, 0644);
+  }
+  if(fd == -1){
+    printf("error: %s\n", strerror(errno));
+  }
+  dup(STDOUT_FILENO);
+  dup2(fd, STDOUT_FILENO);
+  arr[i] = NULL;
+  if (execvp(arr[0], arr) == -1){
+    printf("Uh oh!%s\n", strerror(errno));
+  }
+  close(fd);
+}
 
 
 //line is the targeted string
@@ -110,9 +97,9 @@ char* strReplace(char* line, char target, char* newStr) {
   strcat(temp, point);
   printf("%s\n", temp);
 
-  int index = 0;
-  while (temp[index++]);
-  char* output = calloc(sizeof(char), index);
+  int i = 0;
+  while (temp[i++]);
+  char* output = calloc(sizeof(char), i);
   strcpy(output, temp);
 
   free(temp);
@@ -132,7 +119,7 @@ void call_cd(char ** args){
       n = chdir(home);
     }
     if (n == -1){
-      printf("Uh oh! cd error: %s", strerror(errno));
+      printf("Uh oh!%s\n", strerror(errno));
     }
   }
   if (!strcmp(args[0], "exit")){
@@ -157,13 +144,18 @@ int run_commands(char *line){
 
   int fd1 = -1;
 
-  if(pid == 0){
-    // pid == 0 means child process created
-    // getpid() returns process id of calling process
+  int i;
+  for(i = 0; args[i] != NULL && (strcmp(args[i], ">") != 0 && strcmp(args[i], ">>") != 0 && strcmp(args[i], "<") != 0 && strcmp(args[i], "|") != 0); i++);
 
-    //************************* DOES NOT WORK (YET!) ***********************
-    redir_output(line);
-    redir_input(line);
+
+  if(pid == 0){
+
+    if(args[i] != NULL && (strstr(args[i], ">") || (strstr(args[i], ">>")))) {
+      redir_output(args, i);
+    }
+    else if(args[i] != NULL && (strstr(args[i], "<") || (strstr(args[i], "<<")))) {
+      redir_input(args, i);
+    }
 
     int error = execvp(args[0], args);
     if (error == -1)
