@@ -46,7 +46,6 @@ char * fixws(char *arg){
   return result;
 }
 
-
 void semicolon(char *line){
   char ** separated = parse_args(line, ";");
   int i = 0;
@@ -88,7 +87,6 @@ void redir_output(char ** arr, int i) {
   }
   close(fd);
 }
-
 
 //line is the targeted string
 //target is the character you want to change
@@ -134,29 +132,43 @@ void call_cd(char ** args){
   }
 }
 
-void pipey(char *line){
-  int y[2];
-  pipe(y);
-  char ** separated = parse_args(line, "|");
+void pipey(char *args){
+  char ** separated = parse_args(args, "|");
   char ** firstArg = parse_args(separated[0], " ");
   char ** secondArg = parse_args(separated[1], " ");
 
-  if(fork()){
-    close(y[0]);
-    dup2(y[1], STDOUT_FILENO);
-    if(execvp(firstArg[0], firstArg) == -1){
-      printf("Uh oh!%s\n", strerror(errno));
-    }
-    else{
-      int cpid = wait(NULL);
-      close(y[1]);
-      dup2(y[0], STDIN_FILENO);
-      if(execvp(secondArg[0], secondArg) == -1){
-        printf("Uh oh!%s\n", strerror(errno));
-      }
-    }
-  }
+  int f = fork();
+  // if(f){
+  //   popen(firstArg[0], "r");
+  //   if(execvp(firstArg[0], firstArg) == -1){
+  //     printf("Uh oh!%s\n", strerror(errno));
+  //   }
+  // }
+  // else{
+  //   int cpid = wait(NULL);
+  //   popen(secondArg[0], "w");
+  //   if(execvp(secondArg[0], secondArg) == -1){
+  //     printf("Uh oh!%s\n", strerror(errno));
+  //   }
+  // }
+
 }
+
+// if(f){
+//   close(y[0]);
+//   dup2(y[1], STDOUT_FILENO);
+//   if(execvp(firstArg[0], firstArg) == -1){
+//     printf("Uh oh!%s\n", strerror(errno));
+//   }
+//   else{
+//     int cpid = wait(NULL);
+//     close(y[1]);
+//     dup2(y[0], STDIN_FILENO);
+//     if(execvp(secondArg[0], secondArg) == -1){
+//       printf("Uh oh!%s\n", strerror(errno));
+//     }
+//   }
+// }
 
 int run_commands(char *line){
   char * currentdirectory = malloc(256);
@@ -180,7 +192,7 @@ int run_commands(char *line){
 
   if(pid == 0){
     if(args[i] != NULL && (strstr(args[i], "|"))){
-      pipey(args[i]);
+      pipey(line);
     }
     else if(args[i] != NULL && (strstr(args[i], ">") || (strstr(args[i], ">>")))) {
       redir_output(args, i);
