@@ -19,4 +19,9 @@ int redir_input(char *line);
 
 int redir_output(char *line);
 
+char* strReplace(char* line, char target, char* newStr);
+
+void call_cd(char ** args);
+
+
 int run_commands(char *line);

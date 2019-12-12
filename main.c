@@ -86,12 +86,71 @@ int redir_output(char *line){
   return 0;
 }
 
+// void call_cd(char *line){
+//   printf("REACHES THIS POINT\n");
+//   int change;
+//   change = chdir(line);
+//   if(change == -1){
+//     printf("ERROR: %s\n", strerror(errno));
+//   }
+// }
+
+
+//line is the targeted string
+//target is the character you want to change
+//newStr is the string you want to replace it with
+//HELPER FUNCTION FOR CD
+char* strReplace(char* line, char target, char* newStr) {
+  char* temp = calloc(sizeof(char), 1000);
+  char* point = strchr(line, target);
+  *point = 0;
+  point++;
+  strcat(temp, line);
+  strcat(temp, newStr);
+  strcat(temp, point);
+  printf("%s\n", temp);
+
+  int index = 0;
+  while (temp[index++]);
+  char* output = calloc(sizeof(char), index);
+  strcpy(output, temp);
+
+  free(temp);
+
+  return output;
+}
+
+void call_cd(char ** args){
+  int n;
+  if (!strcmp(args[0], "cd")){
+    n = chdir(args[1]);
+    if (args[1] == NULL) {
+      n = chdir(getenv("HOME"));
+    }
+    else if (strchr(args[1], '~') != NULL){
+      char * home = strReplace(args[1], '~', getenv("HOME"));
+      n = chdir(home);
+    }
+    if (n == -1){
+      printf("Uh oh! cd error: %s", strerror(errno));
+    }
+  }
+  if (!strcmp(args[0], "exit")){
+    exit(0);
+  }
+}
+
 
 int run_commands(char *line){
   char * currentdirectory = malloc(256);
   char * cmd = malloc(64 * sizeof(char));
   strcat(cmd, line);
   char ** args = parse_args(cmd, " ");
+
+  if (!strcmp(args[0], "cd")){
+    call_cd(args);
+    return 0;
+  }
 
   pid_t pid;
   pid = fork();
@@ -116,14 +175,6 @@ int run_commands(char *line){
   return 0;
 }
 
-void call_cd(char *line){
-  printf("REACHES THIS POINT\n");
-  int change;
-  change = chdir(line);
-  if(change == -1){
-    printf("ERROR: %s\n", strerror(errno));
-  }
-}
 
 int main(int argc, char *argv[]){
   char * currentdirectory = malloc(256);
