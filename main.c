@@ -13,6 +13,7 @@
 
 char ** parse_args(char *line, char *delimiter){
   char ** args = malloc(64 * sizeof(char));
+  line = fixws(line);
   int i = 0;
   char * temp;
   while(line != NULL){
@@ -26,17 +27,23 @@ char ** parse_args(char *line, char *delimiter){
 }
 
 char * fixws(char *arg){
-  char * ws = " ";
-  while(strcmp(arg, ws) == 0){
-      arg++;
-  }
+  char * result = calloc(100, sizeof(char));
+  strcpy(result, arg);
+  char ws = ' ';
   int i = 0;
-  while(strcmp(arg, ws) != 0){
-    arg++;
-  }
-  *arg = '\0';
+  int len = strlen(arg) - 1;
 
-  return arg;
+  while(arg[i] == ws){
+      i++;
+      result++;
+  }
+
+  while(arg[len] == ws){
+    len--;
+  }
+
+  result[len + 1] = '\0';
+  return result;
 }
 
 
@@ -127,6 +134,29 @@ void call_cd(char ** args){
   }
 }
 
+void pipey(char *line){
+  int y[2];
+  pipe(y);
+  char ** separated = parse_args(line, "|");
+  char ** firstArg = parse_args(separated[0], " ");
+  char ** secondArg = parse_args(separated[1], " ");
+
+  if(fork()){
+    close(y[0]);
+    dup2(y[1], STDOUT_FILENO);
+    if(execvp(firstArg[0], firstArg) == -1){
+      printf("Uh oh!%s\n", strerror(errno));
+    }
+    else{
+      int cpid = wait(NULL);
+      close(y[1]);
+      dup2(y[0], STDIN_FILENO);
+      if(execvp(secondArg[0], secondArg) == -1){
+        printf("Uh oh!%s\n", strerror(errno));
+      }
+    }
+  }
+}
 
 int run_commands(char *line){
   char * currentdirectory = malloc(256);
@@ -145,12 +175,14 @@ int run_commands(char *line){
   int fd1 = -1;
 
   int i;
-  for(i = 0; args[i] != NULL && (strcmp(args[i], ">") != 0 && strcmp(args[i], ">>") != 0 && strcmp(args[i], "<") != 0 && strcmp(args[i], "|") != 0); i++);
-
+  for(i = 0; args[i] != NULL && (strcmp(args[i], ">") != 0 && strcmp(args[i], ">>") != 0
+  && strcmp(args[i], "<") != 0 && strcmp(args[i], "|") != 0); i++);
 
   if(pid == 0){
-
-    if(args[i] != NULL && (strstr(args[i], ">") || (strstr(args[i], ">>")))) {
+    if(args[i] != NULL && (strstr(args[i], "|"))){
+      pipey(args[i]);
+    }
+    else if(args[i] != NULL && (strstr(args[i], ">") || (strstr(args[i], ">>")))) {
       redir_output(args, i);
     }
     else if(args[i] != NULL && (strstr(args[i], "<") || (strstr(args[i], "<<")))) {
