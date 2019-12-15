@@ -16,6 +16,8 @@ Features our baby implements:
 
 All features should be working
 
+- Program allows for extra white spaces before and after commands
+
 
 ## Bugs
 
@@ -52,7 +54,7 @@ All features should be working
 
 - Redirection for `>`
 
-**char* strReplace();**
+**char * strReplace();**
 - Inputs: char* line, char target, char* newStr
 - Returns: Pointer to beginning of modified line
 
