@@ -16,9 +16,6 @@ Features our baby implements:
 
 All features should be working
 
-- Program allows for extra white spaces before and after commands
-
-
 ## Bugs
 
 - The pipes won’t work with “more” for specific commands (ex. Works for ls | more, but not ls -l | more)
