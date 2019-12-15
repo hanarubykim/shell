@@ -11,21 +11,6 @@
 #include <fcntl.h>
 #include "headers.h"
 
-char ** parse_args(char *line, char *delimiter){
-  char ** args = malloc(64 * sizeof(char));
-  line = fixws(line);
-  int i = 0;
-  char * temp;
-  while(line != NULL){
-    temp = strsep(&line, delimiter);
-    if(strcmp(temp,"")){
-      args[i] = temp;
-      i++;
-    }
-  }
-  return args;
-}
-
 char * fixws(char *arg){
   char * result = calloc(100, sizeof(char));
   strcpy(result, arg);
@@ -46,13 +31,20 @@ char * fixws(char *arg){
   return result;
 }
 
-void semicolon(char *line){
-  char ** separated = parse_args(line, ";");
+char ** parse_args(char *line, char *delimiter){
+  char ** args = malloc(64 * sizeof(char));
+  char * fixed;
+  fixed = fixws(line);
   int i = 0;
-  while(separated[i]){
-      run_commands(separated[i]);
-    i++;
+  char * temp;
+  while(fixed != NULL){
+    temp = strsep(&fixed, delimiter);
+    if(strcmp(temp, "")){
+      args[i] = temp;
+      i++;
+    }
   }
+  return args;
 }
 
 void redir_input(char ** arr, int i) {
@@ -66,7 +58,6 @@ void redir_input(char ** arr, int i) {
   }
   close(fd);
 }
-
 
 void redir_output(char ** arr, int i) {
   int fd;
@@ -136,39 +127,26 @@ void pipey(char *args){
   char ** separated = parse_args(args, "|");
   char ** firstArg = parse_args(separated[0], " ");
   char ** secondArg = parse_args(separated[1], " ");
-
   int f = fork();
-  // if(f){
-  //   popen(firstArg[0], "r");
-  //   if(execvp(firstArg[0], firstArg) == -1){
-  //     printf("Uh oh!%s\n", strerror(errno));
-  //   }
-  // }
-  // else{
-  //   int cpid = wait(NULL);
-  //   popen(secondArg[0], "w");
-  //   if(execvp(secondArg[0], secondArg) == -1){
-  //     printf("Uh oh!%s\n", strerror(errno));
-  //   }
-  // }
+  if(f == 0){
+    FILE *r = popen(firstArg[0], "r");
+    pclose(r);
+    int check = execvp(firstArg[0], firstArg);
+    if(check == -1){
+      printf("Uh oh!%s\n", strerror(errno));
+    }
+  }
+  else{
+    int cpid = wait(NULL);
+    FILE *w = popen(secondArg[0], "w");
+    pclose(w);
+    int check = execvp(secondArg[0], secondArg);
+    if(check == -1){
+      printf("Uh oh!%s\n", strerror(errno));
+    }
+  }
 
 }
-
-// if(f){
-//   close(y[0]);
-//   dup2(y[1], STDOUT_FILENO);
-//   if(execvp(firstArg[0], firstArg) == -1){
-//     printf("Uh oh!%s\n", strerror(errno));
-//   }
-//   else{
-//     int cpid = wait(NULL);
-//     close(y[1]);
-//     dup2(y[0], STDIN_FILENO);
-//     if(execvp(secondArg[0], secondArg) == -1){
-//       printf("Uh oh!%s\n", strerror(errno));
-//     }
-//   }
-// }
 
 int run_commands(char *line){
   char * currentdirectory = malloc(256);
@@ -211,6 +189,14 @@ int run_commands(char *line){
   return 0;
 }
 
+void semicolon(char *line){
+  char ** separated = parse_args(line, ";");
+  int i = 0;
+  while(separated[i]){
+    run_commands(separated[i]);
+    i++;
+  }
+}
 
 int main(int argc, char *argv[]){
   char * currentdirectory = malloc(256);
@@ -243,17 +229,3 @@ int main(int argc, char *argv[]){
   }
   return 0;
 }
-
-// char ** args = parse_args(line, " ");
-//
-// if(strcmp(args[0], "cd") == 0){
-//   chdir(args[1]);
-// } else if(strchr(line, ';')){
-//   semicolon(line);
-// } else if(strncmp(line, "exit\0", 100) != 0){
-//   run_commands(line);
-// }
-// else{
-//   printf("Bye bye!\n");
-//   exit(0);
-// }
