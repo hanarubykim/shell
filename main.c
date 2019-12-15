@@ -122,37 +122,57 @@ void call_cd(char ** args){
 
 int pipey(char *args){
   char ** separated = parse_args(args, "|");
-  char ** firstArg = parse_args(fixws(separated[0]), " ");
-  char ** secondArg = parse_args(fixws(separated[1]), " ");
+  char * firstArg = fixws(separated[0]);
+  char * secondArg = fixws(separated[1]);
+  printf("firstArg: %s!\n", firstArg);
+  printf("secondArg: %s!\n", secondArg);
 
   char current[100];
   char base[100];
-  int f = fork();
-  if(f == 0){
-    FILE *r = popen(firstArg[0], "r");
-    while(fgets(base, 100, r)){
-      base[sizeof(base) - 1] = '\0';
-      strcat(current, base);
-    }
-    pclose(r);
-    int check = execvp(firstArg[0], firstArg);
-    if(check == -1){
-      printf("Uh oh!%s\n", strerror(errno));
-    }
+  FILE *r = popen(firstArg, "r");
+  while(fgets(base, 100, r)){
+    base[sizeof(base) - 1] = '\0';
+    strcat(current, base);
   }
-  else{
-    int cpid = wait(NULL);
-    FILE *w = popen(secondArg[0], "w");
-    fprintf(w, "%s", current);
-    pclose(w);
-    int check = execvp(secondArg[0], secondArg);
-    if(check == -1){
-      printf("Uh oh!%s\n", strerror(errno));
-    }
-  }
-  free(args);
+  pclose(r);
+  FILE *w = popen(secondArg, "w");
+  fprintf(w, "%s", current);
+  pclose(w);
   return 0;
 }
+// int pipey(char *args){
+//   char ** separated = parse_args(args, "|");
+//   char ** firstArg = parse_args(fixws(separated[0]), " ");
+//   char ** secondArg = parse_args(fixws(separated[1]), " ");
+//
+//   char current[100];
+//   char base[100];
+//   int f = fork();
+//   if(f == 0){
+//     FILE *r = popen(firstArg[0], "r");
+//     while(fgets(base, 100, r)){
+//       base[sizeof(base) - 1] = '\0';
+//       strcat(current, base);
+//     }
+//     pclose(r);
+//     int check = execvp(firstArg[0], firstArg);
+//     if(check == -1){
+//       printf("Uh oh!%s\n", strerror(errno));
+//     }
+//   }
+//   else{
+//     int cpid = wait(NULL);
+//     FILE *w = popen(secondArg[0], "w");
+//     fprintf(w, "%s", current);
+//     pclose(w);
+//     int check = execvp(secondArg[0], secondArg);
+//     if(check == -1){
+//       printf("Uh oh!%s\n", strerror(errno));
+//     }
+//   }
+//   free(args);
+//   return 0;
+// }
 
 int run_commands(char *line){
   char * currentdirectory = malloc(256);
