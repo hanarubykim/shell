@@ -8,6 +8,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include "headers.h"
 
 char * fixws(char *arg){
