@@ -6,7 +6,7 @@ main.o: main.c headers.h
 
 run:
 		./shellTest
-		
+
 
 clean:
 	rm *.o
