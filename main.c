@@ -8,7 +8,6 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <fcntl.h>
 #include "headers.h"
 
 char * fixws(char *arg){
@@ -79,10 +78,7 @@ void redir_output(char ** arr, int i) {
   close(fd);
 }
 
-//line is the targeted string
-//target is the character you want to change
-//newStr is the string you want to replace it with
-//HELPER FUNCTION FOR CD
+
 char* strReplace(char* line, char target, char* newStr) {
   char* temp = calloc(sizeof(char), 1000);
   char* point = strchr(line, target);
@@ -123,13 +119,20 @@ void call_cd(char ** args){
   }
 }
 
-void pipey(char *args){
+int pipey(char *args){
   char ** separated = parse_args(args, "|");
-  char ** firstArg = parse_args(separated[0], " ");
-  char ** secondArg = parse_args(separated[1], " ");
+  char ** firstArg = parse_args(fixws(separated[0]), " ");
+  char ** secondArg = parse_args(fixws(separated[1]), " ");
+
+  char current[100];
+  char base[100];
   int f = fork();
   if(f == 0){
     FILE *r = popen(firstArg[0], "r");
+    while(fgets(base, 100, r)){
+      base[sizeof(base) - 1] = '\0';
+      strcat(current, base);
+    }
     pclose(r);
     int check = execvp(firstArg[0], firstArg);
     if(check == -1){
@@ -139,13 +142,15 @@ void pipey(char *args){
   else{
     int cpid = wait(NULL);
     FILE *w = popen(secondArg[0], "w");
+    fprintf(w, "%s", current);
     pclose(w);
     int check = execvp(secondArg[0], secondArg);
     if(check == -1){
       printf("Uh oh!%s\n", strerror(errno));
     }
   }
-
+  free(args);
+  return 0;
 }
 
 int run_commands(char *line){
