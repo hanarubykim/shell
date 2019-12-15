@@ -190,7 +190,6 @@ void semicolon(char *line){
     run_commands(separated[i]);
     i++;
   }
-}
 
 int main(int argc, char *argv[]){
   char * currentdirectory = malloc(256);
