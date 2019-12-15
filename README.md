@@ -24,67 +24,66 @@ All features should be working
 
 
 ## Functions
-Functions
 
-char * fixws();
-Inputs: char * arg
-Returns: Pointer to beginning of arg
+**char * fixws();**
+- Inputs: char * arg
+- Returns: Pointer to beginning of arg
 
 Removes leading and trailing whitespace on the string arg
 Terminating ‘/0’ is placed at a new location if necessary
 Returns a pointer to a string stripped of leading/trailing whitespace.
 
 
-char ** parse_args();
-Inputs: char * line, char * delimiter
-Returns: Array of strings where each entry is a token separated by delimiter
+**char ** parse_args();**
+- Inputs: char * line, char * delimiter
+- Returns: Array of strings where each entry is a token separated by delimiter
 
 Parses command-line arguments so our shell can read in commands separated by a delimiter (ex. helper function for when command-line input has semicolons).
 
-void redir_input();
-Inputs: char ** arr, int i
-Returns: N/A
+**void redir_input();**
+- Inputs: char ** arr, int i
+- Returns: N/A
 
 Redirection for ‘<’
 
-void redir_output();
-Inputs: char ** arr, int i
-Returns: N/A
+**void redir_output();**
+- Inputs: char ** arr, int i
+- Returns: N/A
 
 Redirection for ‘>’
 
-char* strReplace();
-Inputs: char* line, char target, char* newStr
-Returns: Pointer to beginning of modified line
+**char* strReplace();**
+- Inputs: char* line, char target, char* newStr
+- Returns: Pointer to beginning of modified line
 
 A helper function for call_cd. Line is the targeted string, target is the character you want to change, and newStr is the string you want to replace it with. Does lots of concatenating strings so that you can cd into the right directory
 
-void call_cd();
-Inputs: char ** args
-Returns: N/A
+**void call_cd();**
+- Inputs: char ** args
+- Returns: N/A
 
 Takes in args, an array of strings, and handles any cd calls
 
-void pipey();
-Inputs: char * args
-Returns: N/A
+**void pipey();**
+- Inputs: char * args
+- Returns: N/A
 
 Handles pipes ‘|’
 
-int run_commands();
-Inputs: char * line
-Returns: 0
+**int run_commands();**
+- Inputs: char * line
+- Returns: 0
 
 Takes in a string of commands and calls the proper functions to execute it
 
-void semicolon();
-Inputs: char * line
-Returns: N/A
+**void semicolon();**
+- Inputs: char * line
+- Returns: N/A
 
 Handles command-line inputs with multiple commands separated by semicolons.
 
-int main();
-Inputs: N/A
-Returns: 0 if successful, -1 if unsuccessful
+**int main();**
+- Inputs: N/A
+- Returns: 0 if successful, -1 if unsuccessful
 
 Runs the shell.
