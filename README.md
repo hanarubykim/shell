@@ -24,6 +24,7 @@ All features should be working
 
 ## Functions
 
+### `functions.c` file
 **char * fixws();**
 - Inputs: char * arg
 - Returns: Pointer to beginning of arg
@@ -81,6 +82,8 @@ All features should be working
 
 - Handles command-line inputs with multiple commands separated by semicolons.
 
+
+### `main.c` file
 **int main();**
 - Inputs: N/A
 - Returns: 0 if successful, -1 if unsuccessful
