@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include "headers.h"
 
 int main(int argc, char *argv[]){
   char * currentdirectory = malloc(256);
