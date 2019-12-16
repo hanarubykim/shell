@@ -125,8 +125,8 @@ int pipey(char *args){
   char ** separated = parse_args(args, "|");
   char * firstArg = fixws(separated[0]);
   char * secondArg = fixws(separated[1]);
-  printf("firstArg: %s!\n", firstArg);
-  printf("secondArg: %s!\n", secondArg);
+  // printf("firstArg: %s!\n", firstArg);
+  // printf("secondArg: %s!\n", secondArg);
 
   char current[100];
   char base[100];
